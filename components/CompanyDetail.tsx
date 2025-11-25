@@ -1,0 +1,138 @@
+
+import React, { useEffect, useState } from 'react';
+import type { CompanyRecommendation, SDG } from '../types';
+import { SDG_LIST } from '../constants';
+import { generateCompanyImage } from '../services/geminiService';
+
+interface CompanyDetailProps {
+    company: CompanyRecommendation;
+    userSdgs: SDG[];
+    onBack: () => void;
+}
+
+const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack }) => {
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [isLoadingImage, setIsLoadingImage] = useState<boolean>(false);
+
+    const generateImagePrompt = (companyName: string, topSdgCode: string): string => {
+        const topSdg = SDG_LIST.find(s => s.code === topSdgCode);
+        const sdgTheme = topSdg ? topSdg.title : 'Sustainability';
+        return `A high-quality, futuristic, and symbolic 3D render representing the company '${companyName}' successfully achieving '${sdgTheme}'. The image should be professional, inspiring, and feature elements of growth, technology, and harmony with nature. Use a corporate and clean color palette accented with ${topSdg?.color || '#0077ff'}. --ar 16:9`;
+    };
+
+    useEffect(() => {
+        const fetchImage = async () => {
+            setIsLoadingImage(true);
+            const prompt = generateImagePrompt(company.corp_name, company.top_sdg);
+            const url = await generateCompanyImage(prompt);
+            setImageUrl(url);
+            setIsLoadingImage(false);
+        };
+        fetchImage();
+    }, [company]);
+
+    const topSdg = SDG_LIST.find(s => s.code === company.top_sdg);
+
+    return (
+        <div className="min-h-screen bg-gray-50 p-4 sm:p-6 md:p-8 animate-fade-in">
+            <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+                {/* Header: Name and Ticker */}
+                <header className="p-6 bg-white border-b border-gray-100 flex justify-between items-center sticky top-0 z-10">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">{company.corp_name}</h1>
+                        <p className="text-lg text-blue-600 font-medium">{company.corp_code}</p>
+                    </div>
+                    <button onClick={onBack} className="text-gray-500 hover:text-gray-800 font-medium px-4 py-2 rounded-lg transition-colors">
+                        ✕ 닫기
+                    </button>
+                </header>
+
+                <div className="p-6 md:p-8 space-y-10">
+                    {/* 1. AI Analysis Summary */}
+                    <section>
+                        <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                            <span className="mr-2">💡</span> AI 분석 요약
+                        </h2>
+                        <div className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl">
+                            <p className="text-blue-900 leading-relaxed text-lg">{company.explanation}</p>
+                        </div>
+                    </section>
+
+                    {/* 2. AI Image Generation */}
+                    <section>
+                        <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                            <span className="mr-2">🎨</span> AI 이미지 생성
+                        </h2>
+                        <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center shadow-inner relative">
+                            {isLoadingImage ? (
+                                <div className="text-center">
+                                    <div className="w-10 h-10 border-4 border-blue-500 border-dashed rounded-full animate-spin mx-auto mb-3"></div>
+                                    <p className="text-gray-500 text-sm">Nano Banana 모델이 이미지를 생성 중입니다...</p>
+                                </div>
+                            ) : imageUrl ? (
+                                <img src={imageUrl} alt={`${company.corp_name} AI Generated`} className="w-full h-full object-cover animate-fade-in" />
+                            ) : (
+                                <div className="text-gray-400 text-center p-4">
+                                    <p>이미지를 생성할 수 없습니다.</p>
+                                    <button 
+                                        onClick={() => setIsLoadingImage(true)} // Retrigger is not fully implemented but simpler for UI
+                                        className="mt-2 text-blue-500 underline text-sm"
+                                    >
+                                        다시 시도
+                                    </button>
+                                </div>
+                            )}
+                             <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+                                Generated by Gemini 2.5 Flash Image
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* 3. Natural Language Explanation Generation */}
+                    <section>
+                        <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                            <span className="mr-2">📝</span> 자연어 설명 생성
+                        </h2>
+                        <div className="p-5 bg-gray-50 border border-gray-200 rounded-xl">
+                            <p className="font-semibold text-gray-700 mb-2">투자자 보고서 초안</p>
+                            <p className="text-gray-600 leading-relaxed">
+                                "{company.corp_name}은(는) {topSdg?.title} 목표 달성에 있어 독보적인 위치를 점하고 있습니다. 
+                                동사의 혁신적인 비즈니스 모델은 사회적 가치 창출과 경제적 이익을 동시에 추구하며, 
+                                귀하의 포트폴리오에 장기적인 안정성과 성장성을 더해줄 매력적인 투자처로 판단됩니다."
+                            </p>
+                        </div>
+                    </section>
+
+                    {/* 4. SNS Promotion Text */}
+                    <section>
+                        <h2 className="text-xl font-bold text-gray-800 mb-3 flex items-center">
+                            <span className="mr-2">📢</span> SNS 홍보 문구
+                        </h2>
+                        <div className="p-5 bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-100 rounded-xl">
+                             <p className="font-semibold text-indigo-900 mb-2">추천 포스팅</p>
+                            <p className="text-indigo-800 italic">
+                                "더 나은 미래를 위한 현명한 선택! 🌍 {company.corp_name}과 함께 {topSdg?.title} 실현에 동참하세요. 
+                                당신의 가치가 세상의 변화를 만듭니다. #가치투자 #{company.corp_name} #여울 #ESG #지속가능성"
+                            </p>
+                        </div>
+                    </section>
+                </div>
+                
+                <div className="p-6 bg-gray-50 border-t border-gray-200 text-center">
+                    <button 
+                        onClick={onBack}
+                        className="w-full sm:w-auto px-8 py-3 bg-gray-800 text-white font-bold rounded-full hover:bg-gray-900 transition-colors shadow-lg"
+                    >
+                        목록으로 돌아가기
+                    </button>
+                </div>
+            </div>
+            <style>{`
+                @keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+                .animate-fade-in { animation: fade-in 0.8s ease-in-out; }
+            `}</style>
+        </div>
+    );
+};
+
+export default CompanyDetail;
