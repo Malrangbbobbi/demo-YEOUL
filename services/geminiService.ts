@@ -131,8 +131,8 @@ const calculateAllSdgAlignments = (company: RawCompanyData): number[] => {
         
         // Calculate raw score: mentions * sentiment
         // Cap at 5 for the chart
-        // Multiplier 1.5 helps fill the chart for companies with decent activity
-        const score = Math.min(5, mentions * sentiment * 1.5);
+        // Multiplier 5.0 helps fill the chart for companies to match user's scale (5)
+        const score = Math.min(5, mentions * sentiment * 5.0);
         alignments.push(score);
     }
     return alignments;
