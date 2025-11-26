@@ -256,13 +256,21 @@ export const getCompanyRecommendations = async (
     return { recommended_companies: recommendations };
 };
 
-export const generateCompanyImage = async (referenceSentence: string): Promise<string | null> => {
+export const generateCompanyImage = async (referenceSentence: string, companyName: string): Promise<string | null> => {
     if (!API_KEY) return null;
 
     try {
-        // Create a visual prompt based on the reference sentence
-        const imagePrompt = `A warm, cute, and friendly flat vector illustration visualizing this corporate activity: "${referenceSentence}". 
-        Style: minimal, pastel colors, soft shapes, engaging and approachable, suitable for a mobile app interface. No text.`;
+        // Create a visual prompt that emphasizes ACTION and SCENE over abstract symbols
+        // We include the company name to maybe influence the 'vibe' if the model knows it, but mostly focus on the activity.
+        const imagePrompt = `
+        A cute, flat vector illustration suitable for a mobile app header.
+        
+        Subject: Visualize the positive ESG impact of "${companyName}".
+        Specific Activity: "${referenceSentence}"
+        
+        Composition: A scene showing people, nature, or community interacting harmoniously. Avoid text.
+        Style: Minimal, flat design, pastel color palette, friendly, optimistic, high quality vector art style.
+        `;
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash-image', // NANO BANANA

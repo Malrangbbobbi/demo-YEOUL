@@ -21,7 +21,8 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack
             if (!company.image_reference_sentence) return;
             
             setIsLoadingImage(true);
-            const url = await generateCompanyImage(company.image_reference_sentence);
+            // Pass company name for better prompt context
+            const url = await generateCompanyImage(company.image_reference_sentence, company.corp_name);
             setImageUrl(url);
             setIsLoadingImage(false);
         };
@@ -100,7 +101,7 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack
                     {/* Decorative Background Element */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                     
-                    <div className="relative z-10 flex flex-col gap-8 h-full">
+                    <div className="relative z-10 flex flex-col gap-6 h-full">
                         {/* 1. Header Section */}
                         <div className="shrink-0">
                             <span className="inline-block px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold tracking-wider uppercase mb-3 border border-blue-500/30">
@@ -111,12 +112,13 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack
                         </div>
 
                         {/* 2. SDG Value Alignment (Moved here) */}
-                        <div className="flex-1 min-h-[250px] shrink-0">
+                        {/* Height reduced to h-52 to pull image up */}
+                        <div className="shrink-0">
                             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center">
                                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
                                 SDG 가치 부합도
                             </h2>
-                            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-2 h-64 shadow-inner">
+                            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-2 h-52 shadow-inner">
                                 <RadarChartComponent 
                                     companyAlignment={company.sdg_alignment} 
                                     userSdgs={userSdgs}
@@ -126,12 +128,13 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack
                         </div>
 
                         {/* 3. SDG Visual Snapshot */}
-                        <div className="shrink-0">
+                        {/* Height increased to h-80 to make it more prominent */}
+                        <div className="flex-1 min-h-[320px] shrink-0">
                             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center">
                                 <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                                 SDG 비주얼 스냅샷
                             </h2>
-                            <div className="w-full h-64 bg-slate-800 rounded-2xl overflow-hidden relative shadow-2xl border border-slate-700 group">
+                            <div className="w-full h-80 bg-slate-800 rounded-2xl overflow-hidden relative shadow-2xl border border-slate-700 group">
                                 {isLoadingImage ? (
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                                         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
