@@ -162,24 +162,6 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack
                 {/* Right Panel: Detailed Text Content (Light Theme) */}
                 <div className="lg:w-7/12 bg-white p-8 lg:p-12 overflow-y-auto">
                     
-                    {/* Actions Row - Hide on Download */}
-                    <div className="flex justify-end gap-3 mb-6" data-html2canvas-ignore="true">
-                        <button 
-                            onClick={handleShare}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-                            공유하기
-                        </button>
-                        <button 
-                            onClick={handleDownload}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-medium transition-colors"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                            카드 다운로드
-                        </button>
-                    </div>
-
                     <div className="max-w-2xl mx-auto space-y-10">
                         
                         {/* 1. SDG Insights */}
@@ -225,6 +207,24 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack
                                 )}
                             </div>
                         </section>
+
+                        {/* Actions Row - Moved to bottom */}
+                        <div className="flex justify-end gap-3 pt-6 border-t border-gray-100" data-html2canvas-ignore="true">
+                            <button 
+                                onClick={handleShare}
+                                className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-bold transition-all hover:shadow-md"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                                공유하기
+                            </button>
+                            <button 
+                                onClick={handleDownload}
+                                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                카드 다운로드
+                            </button>
+                        </div>
 
                     </div>
                 </div>
