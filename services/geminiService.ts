@@ -61,8 +61,13 @@ const fetchCompanyData = async (): Promise<RawCompanyData[]> => {
             
             headers.forEach((header, index) => {
                 const val = values[index];
+                
+                // FORCE STRING TYPE FOR CORP_CODE to preserve leading zeros (e.g., "036460")
+                if (header === 'corp_code') {
+                    row[header] = val ? val.trim() : '';
+                } 
                 // Try to convert to number if possible, otherwise keep as string
-                if (val !== undefined && val !== '' && !isNaN(Number(val))) {
+                else if (val !== undefined && val !== '' && !isNaN(Number(val))) {
                     row[header] = Number(val);
                 } else {
                     row[header] = val || '';
@@ -215,7 +220,7 @@ export const getCompanyRecommendations = async (
 
         recommendations.push({
             corp_name: company.company_name,
-            corp_code: company.corp_code,
+            corp_code: company.corp_code, // Now this will be a string with leading zeros
             match_score: company.score,
             top_sdg: topGCode,
             explanation: generatedContent.explanation,

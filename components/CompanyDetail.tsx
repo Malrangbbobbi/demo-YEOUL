@@ -95,7 +95,7 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, onBack }) => {
                                     </div>
                                 )}
                             </div>
-                            <p className="mt-4 text-xs text-slate-400 font-light leading-relaxed border-l-2 border-slate-700 pl-3">
+                            <p className="mt-4 text-xs text-slate-400 font-light leading-relaxed border-l-2 border-slate-700 pl-3 line-clamp-3">
                                 <span className="font-semibold text-slate-300">Reference:</span> {company.image_reference_sentence}
                             </p>
                         </div>
