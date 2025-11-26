@@ -263,7 +263,7 @@ export const generateCompanyImage = async (referenceSentence: string, companyNam
         // Create a visual prompt that emphasizes ACTION and SCENE over abstract symbols
         // We include the company name to maybe influence the 'vibe' if the model knows it, but mostly focus on the activity.
         const imagePrompt = `
-        A cute, flat vector illustration suitable for a mobile app header.
+        A cute, flat vector illustration suitable for a portrait card.
         
         Subject: Visualize the positive ESG impact of "${companyName}".
         Specific Activity: "${referenceSentence}"
@@ -275,6 +275,11 @@ export const generateCompanyImage = async (referenceSentence: string, companyNam
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash-image', // NANO BANANA
             contents: { parts: [{ text: imagePrompt }] },
+            config: {
+                imageConfig: {
+                    aspectRatio: "3:4"
+                }
+            }
         });
 
         for (const candidate of response.candidates || []) {

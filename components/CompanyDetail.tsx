@@ -128,13 +128,13 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack
                         </div>
 
                         {/* 3. SDG Visual Snapshot */}
-                        {/* Height increased to h-80 to make it more prominent */}
-                        <div className="flex-1 min-h-[320px] shrink-0">
+                        {/* Height increased to h-[500px] to make it more prominent and vertical */}
+                        <div className="flex-1 min-h-[500px] shrink-0">
                             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center">
                                 <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                                 SDG 비주얼 스냅샷
                             </h2>
-                            <div className="w-full h-80 bg-slate-800 rounded-2xl overflow-hidden relative shadow-2xl border border-slate-700 group">
+                            <div className="w-full h-[500px] bg-slate-800 rounded-2xl overflow-hidden relative shadow-2xl border border-slate-700 group">
                                 {isLoadingImage ? (
                                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                                         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
