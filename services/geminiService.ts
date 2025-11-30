@@ -8,6 +8,7 @@ if (!API_KEY) {
   console.warn("API_KEY is not set.");
 }
 
+// Global instance for simple text tasks
 const ai = new GoogleGenAI({ apiKey: API_KEY || "mock-key" });
 
 // Helper to format SDG ID to G-code (e.g., 1 -> "G01", 17 -> "G17")
@@ -213,6 +214,7 @@ export const getCompanyRecommendations = async (
         
         if (API_KEY) {
             try {
+                // Ensure we use a fresh instance or the global one with the current key
                 const result = await ai.models.generateContent({
                     model: 'gemini-2.5-flash',
                     contents: prompt,
@@ -293,5 +295,53 @@ export const generateCompanyImage = async (referenceSentence: string, companyNam
     } catch (error) {
         console.error("Error generating image:", error);
         return null;
+    }
+};
+
+/**
+ * Generates a video for the company using the Veo model.
+ * Note: Requires a Paid API Key.
+ */
+export const generateCompanyVideo = async (referenceSentence: string, companyName: string): Promise<string | null> => {
+    // IMPORTANT: Always create a new instance to ensure we use the latest API Key
+    // especially after the user might have just selected one via window.aistudio.openSelectKey()
+    const veoAi = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+
+    try {
+        const prompt = `Cinematic, realistic video of ${companyName}'s ESG activity: ${referenceSentence}. High quality, detailed, positive atmosphere.`;
+
+        let operation = await veoAi.models.generateVideos({
+            model: 'veo-3.1-fast-generate-preview',
+            prompt: prompt,
+            config: {
+                numberOfVideos: 1,
+                resolution: '720p',
+                aspectRatio: '16:9'
+            }
+        });
+
+        // Poll for completion
+        while (!operation.done) {
+            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5s
+            operation = await veoAi.operations.getVideosOperation({ operation: operation });
+        }
+
+        const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+
+        if (downloadLink) {
+            // Append API key as per documentation
+            const videoUrlWithKey = `${downloadLink}&key=${process.env.API_KEY}`;
+            
+            // We fetch it to get a blob URL which is safer and easier to play in some contexts,
+            // or simply return the signed URL. Returning the blob URL is more robust.
+            const response = await fetch(videoUrlWithKey);
+            const blob = await response.blob();
+            return URL.createObjectURL(blob);
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Error generating video:", error);
+        throw error; // Rethrow to handle in UI
     }
 };
