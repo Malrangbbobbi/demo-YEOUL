@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import type { CompanyRecommendation, SDG } from '../types';
-import { generateCompanyImage } from '../services/geminiService';
+import { generateCompanyImage, generateCompanyVideo } from '../services/geminiService';
 import RadarChartComponent from './RadarChartComponent';
 import html2canvas from 'html2canvas';
 
@@ -13,20 +13,42 @@ interface CompanyDetailProps {
 
 const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack }) => {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
     const [isLoadingImage, setIsLoadingImage] = useState<boolean>(false);
+    const [isLoadingVideo, setIsLoadingVideo] = useState<boolean>(false);
     const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const fetchImage = async () => {
+        let isMounted = true;
+
+        const loadContent = async () => {
             if (!company.image_reference_sentence) return;
             
+            // 1. Start Image Generation (Fast)
             setIsLoadingImage(true);
-            // Pass company name for better prompt context
-            const url = await generateCompanyImage(company.image_reference_sentence, company.corp_name);
-            setImageUrl(url);
-            setIsLoadingImage(false);
+            generateCompanyImage(company.image_reference_sentence, company.corp_name).then(url => {
+                if (isMounted) {
+                    setImageUrl(url);
+                    setIsLoadingImage(false);
+                }
+            });
+
+            // 2. Start Video Generation (Slow, Background)
+            setIsLoadingVideo(true);
+            generateCompanyVideo(company.image_reference_sentence, company.corp_name).then(url => {
+                if (isMounted) {
+                    setVideoUrl(url);
+                    setIsLoadingVideo(false);
+                }
+            }).catch(err => {
+                console.warn("Video gen failed", err);
+                if (isMounted) setIsLoadingVideo(false);
+            });
         };
-        fetchImage();
+
+        loadContent();
+
+        return () => { isMounted = false; };
     }, [company]);
 
     // Helper to split SNS text into main body and hashtags
@@ -133,7 +155,6 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack
                         </div>
 
                         {/* 2. SDG Value Alignment (Moved here) */}
-                        {/* Height reduced to h-52 to pull image up */}
                         <div className="shrink-0">
                             <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center">
                                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
@@ -148,32 +169,55 @@ const CompanyDetail: React.FC<CompanyDetailProps> = ({ company, userSdgs, onBack
                             </div>
                         </div>
 
-                        {/* 3. SDG Visual Snapshot */}
-                        {/* Height increased to h-[500px] to make it more prominent and vertical */}
+                        {/* 3. SDG Visual Snapshot (Image first, then Video) */}
                         <div className="flex-1 min-h-[500px] shrink-0">
-                            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center">
-                                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                                SDG 비주얼 스냅샷
-                            </h2>
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider flex items-center">
+                                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                    SDG 비주얼 스냅샷
+                                </h2>
+                                {/* Video Status Badge */}
+                                {isLoadingVideo && (
+                                    <span className="flex items-center gap-2 px-3 py-1 bg-slate-800 rounded-full border border-slate-700 shadow-sm">
+                                        <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></span>
+                                        <span className="text-xs text-purple-300 font-medium tracking-wide">AI Video Generating...</span>
+                                    </span>
+                                )}
+                            </div>
+
                             <div className="w-full h-[500px] bg-slate-800 rounded-2xl overflow-hidden relative shadow-2xl border border-slate-700 group">
-                                {isLoadingImage ? (
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                        <p className="text-sm text-slate-400 font-medium animate-pulse">Nano Banana 생성 중...</p>
-                                    </div>
-                                ) : imageUrl ? (
+                                {videoUrl ? (
+                                    // Video Player
+                                    <video 
+                                        src={videoUrl} 
+                                        autoPlay 
+                                        loop 
+                                        muted 
+                                        playsInline
+                                        className="w-full h-full object-cover animate-fade-in"
+                                    />
+                                ) : (
+                                    // Image Viewer
                                     <>
-                                        <img 
-                                            src={imageUrl} 
-                                            alt="AI Generated Visualization" 
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                                        />
+                                        {isLoadingImage ? (
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                                <p className="text-sm text-slate-400 font-medium animate-pulse">Nano Banana 생성 중...</p>
+                                            </div>
+                                        ) : imageUrl ? (
+                                            <img 
+                                                src={imageUrl} 
+                                                alt="AI Generated Visualization" 
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                            />
+                                        ) : (
+                                            <div className="absolute inset-0 flex items-center justify-center text-slate-500">
+                                                <p>이미지 생성 불가</p>
+                                            </div>
+                                        )}
+                                        {/* Overlay gradient only for image */}
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
                                     </>
-                                ) : (
-                                    <div className="absolute inset-0 flex items-center justify-center text-slate-500">
-                                        <p>이미지 생성 불가</p>
-                                    </div>
                                 )}
                             </div>
                             <p className="mt-4 text-xs text-slate-400 font-light leading-relaxed border-l-2 border-slate-700 pl-3 line-clamp-3">

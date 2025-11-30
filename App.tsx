@@ -5,7 +5,6 @@ import SdgSelection from './components/SdgSelection';
 import InvestmentSurvey from './components/InvestmentSurvey';
 import Dashboard from './components/Dashboard';
 import CompanyDetail from './components/CompanyDetail';
-import CompanyIntroVideo from './components/CompanyIntroVideo'; // Import new component
 import { getCompanyRecommendations } from './services/geminiService';
 import type { AppStep, SurveyData, CompanyRecommendation, RiskPreference, SdgScore, SDG } from './types';
 
@@ -65,11 +64,6 @@ export default function App() {
 
   const handleSelectCompany = (company: CompanyRecommendation) => {
     setSelectedCompany(company);
-    // Go to video intro step first
-    setStep('video-intro');
-  };
-  
-  const handleVideoComplete = () => {
     setStep('detail');
   };
 
@@ -106,8 +100,6 @@ export default function App() {
         return <LoadingSpinner />;
       case 'dashboard':
         return <Dashboard recommendations={recommendations} surveyData={surveyData} onSelectCompany={handleSelectCompany} onRestart={handleRestart} />;
-      case 'video-intro':
-        return selectedCompany ? <CompanyIntroVideo company={selectedCompany} onComplete={handleVideoComplete} /> : <div/>;
       case 'detail':
         return selectedCompany ? <CompanyDetail company={selectedCompany} userSdgs={surveyData.selectedSdgs} onBack={handleBackToDashboard} /> : <div/>;
       default:

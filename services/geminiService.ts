@@ -270,7 +270,7 @@ export const generateCompanyImage = async (referenceSentence: string, companyNam
         Subject: Visualize the positive ESG impact of "${companyName}".
         Specific Activity: "${referenceSentence}"
         
-        Composition: A scene showing people, nature, or community interacting harmoniously. Avoid text.
+        Composition: A scene showing people, nature, or technology interacting harmoniously. Avoid text.
         Style: Minimal, flat design, pastel color palette, friendly, optimistic, high quality vector art style.
         `;
 
@@ -307,8 +307,12 @@ export const generateCompanyVideo = async (referenceSentence: string, companyNam
     const veoAi = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
 
     try {
-        // Updated prompt for a quick, dynamic video impression
-        const prompt = `Short, dynamic, cinematic video showing ${companyName}'s ESG activity: ${referenceSentence}. Positive, inspiring atmosphere.`;
+        // Updated prompt: Removed text requests, added strict constraints against text overlay.
+        const prompt = `
+        Visual representation of: ${referenceSentence} by ${companyName}.
+        Cinematic, dynamic, positive atmosphere.
+        NO TEXT, NO TYPOGRAPHY, NO CAPTIONS, NO WORDS ON SCREEN. PURE VISUALS ONLY.
+        `;
 
         let operation = await veoAi.models.generateVideos({
             model: 'veo-3.1-fast-generate-preview',

@@ -47,4 +47,4 @@ export interface RawCompanyData {
     [key: string]: string | number | undefined;
 }
 
-export type AppStep = 'start' | 'sdg-select' | 'sdg-score' | 'investment' | 'loading' | 'dashboard' | 'video-intro' | 'detail';
+export type AppStep = 'start' | 'sdg-select' | 'sdg-score' | 'investment' | 'loading' | 'dashboard' | 'detail';
