@@ -304,11 +304,11 @@ export const generateCompanyImage = async (referenceSentence: string, companyNam
  */
 export const generateCompanyVideo = async (referenceSentence: string, companyName: string): Promise<string | null> => {
     // IMPORTANT: Always create a new instance to ensure we use the latest API Key
-    // especially after the user might have just selected one via window.aistudio.openSelectKey()
     const veoAi = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
 
     try {
-        const prompt = `Cinematic, realistic video of ${companyName}'s ESG activity: ${referenceSentence}. High quality, detailed, positive atmosphere.`;
+        // Updated prompt for a quick, dynamic video impression
+        const prompt = `Short, dynamic, cinematic video showing ${companyName}'s ESG activity: ${referenceSentence}. Positive, inspiring atmosphere.`;
 
         let operation = await veoAi.models.generateVideos({
             model: 'veo-3.1-fast-generate-preview',
